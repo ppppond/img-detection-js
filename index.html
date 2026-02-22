@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Qc Deteck</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
+</head>
+
+<body>
+    <h1>ระบบ Detect รูป</h1>
+    <div style="position: relative; display: inline-block">
+        <img src="test-img.jpg" alt="test-img" id="my-image" class="my-image" width="600" crossorigin="anonymous" />
+        <canvas id="my-canvas" style="position: absolute; top: 0; left: 0;"></canvas>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
