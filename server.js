@@ -92,6 +92,29 @@ app.post('/api/qc-log', async (req, res) => {
     });
 });
 
+// อันนี้เป็น API แบบทำเอง สำหรับดึงข้อมูลไปแสดงกราฟ (Dashboard)
+// ร้องขอข้อมูล
+app.get('/api/qc-stats', async (req,res) => {
+    try{
+        // สั่งให้แม่พิมพ์ qcLog ไปเอาข้อมูลทั้งหมดมาจาก MongoDB
+        // -1 หมายถึง Descending หมายถึงว่าให้เอาของใหม่ล่าสุดขึ้นมาก่อน
+        // .limit(50) ให้เอามาแค่ 50 ตัวพอ กันเอามาทั้งหมดทีเดียวเดี๋วค้าง
+        const stats = await qcLog.find().sort({ timestamp: -1 }).limit(50);
+
+        // ตอบกลับหน้าเว็บ Dashboard
+        // ส่งแพ็กเกจข้อมูลที่ค้นเจอ (stats) กลับไปในรูปแบบฟอร์แมตมาตรฐาน
+        res.json({
+            status: 'success',
+            data: stats
+        });
+
+        console.log('ส่งข้อมูลไปที่ Dashboard เรียบร้อย!');
+    } catch (err) {
+        console.error('❌ ดึงข้อมูลพัง', err);
+        res.status(500).json({ status: 'error', message: 'ดึงข้อมูลไม่สำเร็จ'});
+    }
+})
+
 // เชื่อมฐานข้อมูล MongoDB ใช้ .env 
 mongoose.connect(process.env.MONGO_CONNECT)
     .then(() => console.log('✅ เชื่อมต่อฐานข้อมูล MongoDB สำเร็จ!'))

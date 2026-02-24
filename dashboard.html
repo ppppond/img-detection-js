@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QC Admin Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: Arial; padding: 20px; text-align: center; background: #f4f4f9; }
+        .chart-container { background: rgb(84, 64, 64); padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body>
+    <h1>ระบบรายงานสถิติ QC (Admin Dashboard)</h1>
+
+    <div class="chart-container">
+        <canvas id="qcChart" width="800" height="300"></canvas>
+    </div>
+
+    <script>
+        // ฟังชันสำหรับดึงข้อมูลและวาด กราฟ
+        async function loadDataAndDrawChart() {
+            try {
+                // ดึงข้อมูล API
+                const response = await fetch('http://localhost:3000/api/qc-stats');
+
+                // แกะข้อมูล แปลงเป็น Object javascript
+                const result = await response.json();
+
+                // สกัดเอาเฉพาะ Array ข้อมูล (50 แถวล่าสุด) ออกมา
+                const dataList = result.data;
+
+                // สกัดข้อมูล
+                // กราฟต้องการข้อมูล 2 แกน คือ "แกน X (เวลา)" และ "แกน Y (ยอดคน)"
+                // คำสั่งของ Array ที่ใช้ "วนลูปและแปลงร่าง" ข้อมูลทุกก้อนให้กลายเป็น Array อันใหม่
+                const labels = dataList.map(item => new Date(item.timestamp).toLocaleTimeString()) // เอาเฉพาะเวลา
+                const counts = dataList.map(item => item.count) // เอาเฉพาะจำนวน
+
+                // สั่ง Chart.js วาดภาพ (ในที่นี้ Chart.js คือ น่าจะ libary นะ)
+                const ctx = document.getElementById('qcChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'line', // สั่งวาดเป็นกราฟเส้น
+                    data: {
+                        // ต้อง .reverse() กลับข้อมูลเพราะอันนี้ดึงจากใหม่ไปเก่า
+                        labels: labels.reverse(),
+                        datasets: [{
+                            label: 'จำนวนพนักงานที่จุดตรวจ (คน)',
+                            data: counts.reverse(),
+                            borderColor: 'blue',
+                            backgroundColor: 'rgba(0, 0, 255, 0.1)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.3 // ทำให้เส้นกราฟโค้งมนสวยงามขึ้น
+                        }]
+                    },
+                    options: { responsive: true }
+                })
+            } catch(err) {
+                console.error('โหลดข้อมูลกราฟพัง: ', err);
+            }
+        }
+
+        // สั่งให้ฟังก์ชันทำงานทันทีเมื่อเปิดเว็บขึ้นมา
+        loadDataAndDrawChart();
+    </script>
+</body>
+</html>
