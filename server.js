@@ -61,7 +61,7 @@ app.post('/api/qc-log', async (req, res) => {
         // ดึงเวลาปัจจุบัน
         const currentTime = Date.now();
 
-        // logic เช็คเวลาคูลดาวน์
+        // logic เช็คเวลาคูลดาวน์z
         if (currentTime - lastAlertTime > COOLDOWN_TIME) {
             console.log('⚠️ แจ้งเตือน: พนักงานทิ้งจุดตรวจ! กำลังส่งข้อความเข้า Discord...');
 

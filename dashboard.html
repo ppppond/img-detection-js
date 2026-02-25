@@ -1,23 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QC Admin Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { font-family: Arial; padding: 20px; text-align: center; background: #f4f4f9; }
-        .chart-container { background: rgb(84, 64, 64); padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        body {
+            font-family: Arial;
+            padding: 20px;
+            text-align: center;
+            background: #f4f4f9;
+        }
+
+        .chart-container {
+            background: rgb(84, 64, 64);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* CSS สำหรับกล่องตัวเลข */
+        .summary-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            width: 200px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h3 {
+            margin: 0;
+            font-size: 16px;
+            color: #555;
+        }
+
+        .card h2 {
+            margin: 10px 0 0 0;
+            font-size: 36px;
+            color: blue;
+        }
+
+        .nav-btn-back {
+            position: absolute; 
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            background: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
     </style>
 </head>
+
 <body>
     <h1>ระบบรายงานสถิติ QC (Admin Dashboard)</h1>
+
+    <div class="summary-container">
+        <div class="card">
+            <h3>พนักงานล่าสุด</h3>
+            <h2 id="latestCount">0 คน</h2>
+        </div>
+        <div class="card">
+            <h3>อัปเดตเมื่อ</h3>
+            <h2 id="latestTime" style="font-size: 24px; color: #f5a623">-</h2>
+        </div>
+    </div>
 
     <div class="chart-container">
         <canvas id="qcChart" width="800" height="300"></canvas>
     </div>
 
+    <a href="index.html" class="nav-btn-back">กลับไปหน้ากล้อง</a>
+
+
     <script>
+        let qcChartInstance = null;
+
         // ฟังชันสำหรับดึงข้อมูลและวาด กราฟ
         async function loadDataAndDrawChart() {
             try {
@@ -30,15 +100,25 @@
                 // สกัดเอาเฉพาะ Array ข้อมูล (50 แถวล่าสุด) ออกมา
                 const dataList = result.data;
 
+                // อัปเดตตัวเลขล่าสุดลงในกล่อง HTML
+                const latestData = dataList[0];
+                document.getElementById('latestCount').innerHTML = latestData.count + " คน";
+                document.getElementById('latestTime').innerHTML = new Date(latestData.timestamp).toLocaleDateString();
+
                 // สกัดข้อมูล
                 // กราฟต้องการข้อมูล 2 แกน คือ "แกน X (เวลา)" และ "แกน Y (ยอดคน)"
                 // คำสั่งของ Array ที่ใช้ "วนลูปและแปลงร่าง" ข้อมูลทุกก้อนให้กลายเป็น Array อันใหม่
                 const labels = dataList.map(item => new Date(item.timestamp).toLocaleTimeString()) // เอาเฉพาะเวลา
                 const counts = dataList.map(item => item.count) // เอาเฉพาะจำนวน
 
+                // ล้างกราฟเก่าทิ้ง (ถ้ามี) ก่อนวาดใหม่
+                if (qcChartInstance !== null) {
+                    qcChartInstance.destroy();
+                }
+
                 // สั่ง Chart.js วาดภาพ (ในที่นี้ Chart.js คือ น่าจะ libary นะ)
                 const ctx = document.getElementById('qcChart').getContext('2d');
-                new Chart(ctx, {
+                new Chart(ctx,qcChartInstance = {
                     type: 'line', // สั่งวาดเป็นกราฟเส้น
                     data: {
                         // ต้อง .reverse() กลับข้อมูลเพราะอันนี้ดึงจากใหม่ไปเก่า
@@ -55,13 +135,15 @@
                     },
                     options: { responsive: true }
                 })
-            } catch(err) {
+            } catch (err) {
                 console.error('โหลดข้อมูลกราฟพัง: ', err);
             }
         }
 
         // สั่งให้ฟังก์ชันทำงานทันทีเมื่อเปิดเว็บขึ้นมา
         loadDataAndDrawChart();
+        setInterval(loadDataAndDrawChart, 5000);
     </script>
 </body>
+
 </html>

@@ -7,16 +7,42 @@
     <title>AI Qc Deteck</title>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .center-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 50px;
+        }
+
+        .video-wrapper {
+            position: relative;
+            width: 600px;
+        }
+
+        #my-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
 </head>
 
 <body>
     <h1>ระบบ Detect รูป</h1>
-    <div style="position: relative; display: inline-block">
         <!-- <img src="test-img.jpg" alt="test-img" id="my-image" width="600" crossorigin="anonymous" /> -->
-        <video id="my-video" width="600" autoplay muted >
-        </video>
-        <canvas id="my-canvas" style="position: absolute; top: 0; left: 0;"></canvas>
-    </div>
+        <div class="center-container">
+            <div class="video-wrapper">
+                <video id="my-video" width="600" autoplay muted>
+                </video>
+                <canvas id="my-canvas" ></canvas>
+            </div>
+        </div>
+
+    <a href="dashboard.html" class="nav-btn-next">ดูหน้า Dashboard</a>
 
     <script src="app.js"></script>
 </body>
